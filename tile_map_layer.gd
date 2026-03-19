@@ -1,5 +1,4 @@
 extends TileMapLayer
-@onready var timer: Timer = $Timer
 
 var yellow = Vector2i(0,0)
 var sky = Vector2i(1,0)
@@ -13,20 +12,25 @@ var grey = Vector2i(7,0)
 var line_pos = 1
 
 func _ready() -> void:
-	timer.timout.connect(_on_timeout)
 	pass
 
 func _process(delta: float) -> void:
 
-	clear_screen()
+	var time_step = 0.5
+	var max_time_step = 0.25
+	var accumulator = 0.0
 
-	draw_line_at(2,line_pos)
+	accumulator += max(delta, max_time_step)
+
+	if accumulator >= time_step:
+		clear_screen()
+
+		draw_line_at(2,line_pos)
+		line_pos += 1
+		accumulator -= time_step
+
 
 	pass
-
-func _on_timeout() -> void:
-	line_pos += 1
-	
 
 func draw_line_at(x: int, y: int):
 	for i in range(4):
