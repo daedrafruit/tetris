@@ -9,67 +9,24 @@ var orange = Vector2i(5,0)
 var purple = Vector2i(6,0)
 var grey = Vector2i(7,0)
 
-var O =\
-[\
-	0,0,0,0,\
-	0,1,1,0,\
-	0,1,1,0,\
-	0,0,0,0\
-]
-
-var I =\
-[\
-	0,0,0,0,\
-	1,1,1,1,\
-	0,0,0,0,\
-	0,0,0,0\
-]
-
-var S =\
-[\
-	0,1,0,0,\
-	0,1,1,0,\
-	0,0,1,0,\
-	0,0,0,0\
-]
-
-var Z =\
-[\
-	0,0,1,0,\
-	0,1,1,0,\
-	0,1,0,0,\
-	0,0,0,0\
-]
-
-var L =\
-[\
-	0,1,0,0,\
-	0,1,0,0,\
-	0,1,1,0,\
-	0,0,0,0\
-]
-
-var J =\
-[\
-	0,0,1,0,\
-	0,0,1,0,\
-	0,1,1,0,\
-	0,0,0,0\
-]
-var T =\
-[\
-	0,1,0,0,\
-	1,1,1,0,\
-	0,0,0,0,\
-	0,0,0,0\
-]
-
-
 var shape_colors = [yellow, sky, blue, red, green, orange, purple]
-var color
+var init_color
+
+
+var O = [0,0,0,0, 0,1,1,0, 0,1,1,0, 0,0,0,0]
+var I = [0,0,0,0, 0,0,0,0, 1,1,1,1, 0,0,0,0]
+
+var J = [0,0,0, 1,1,1, 0,0,1]
+var L = [0,0,0, 1,1,1, 1,0,0]
+
+var S = [0,0,0, 0,1,1, 1,1,0]
+var Z = [0,0,0, 1,1,0, 0,1,1]
+
+var T = [0,0,0, 1,1,1, 0,1,0]
 
 var shapes = [O, I, S, Z, L, J, T]
-var shape
+var init_shape
+
 
 var speed = 0
 var steps = 0
@@ -84,21 +41,22 @@ func _ready() -> void:
 
 func new_game():
 	speed = 1.0
-	shape = shapes[randi() % 4]
-	color = shape_colors[randi() % 7]
+	init_shape = shapes[randi() % 4]
+	init_color = shape_colors[randi() % 7]
 	
 func _process(delta: float) -> void:
 	steps += speed
 	if steps >= steps_req:
 		clear_piece()
-		draw_shape_at(5, location, shape, color)
+		draw_shape_at(5, location, init_shape, init_color)
 		location += 1
 		steps = 0
 
 func draw_shape_at(x: int, y: int, shape: Array, color: Vector2i):
-	for i in range(4):
-		for j in range(4):
-			if shape[j + i * 4]:
+	var size = sqrt(shape.size())
+	for i in range(size):
+		for j in range(size):
+			if shape[j + i * size]:
 				var coords = Vector2i(x + j, y + i)
 				set_cell(coords, 0, color, 0)
 
