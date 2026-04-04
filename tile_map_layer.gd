@@ -54,8 +54,9 @@ var T = [
 ]
 
 var shapes = [O, I, S, Z, L, J, T]
-var init_shape
+var active_shape
 
+var shape_rotation = 0
 
 var speed = 0
 var steps = 0
@@ -70,27 +71,37 @@ func _ready() -> void:
 
 func new_game():
 	speed = 1.0
-	init_shape = shapes[randi() % 4]
+	active_shape = shapes[randi() % 4][rotation]
 	init_color = shape_colors[randi() % 7]
 	
 func _process(delta: float) -> void:
 	steps += speed
-	var shape_rotation = randi() % init_shape.size()
+	#var shape_rotation = randi() % init_shape.size()
 	if steps >= steps_req:
-		clear_piece()
-		draw_shape_at(5, location, init_shape[shape_rotation], init_color)
-		location += 1
-		steps = 0
+		if can_move(5, location, 0, 1):
+			clear_screen()
+			draw_shape_at(5, location, init_color)
+			steps = 0
+			location += 1
 
-func draw_shape_at(x: int, y: int, shape: Array, color: Vector2i):
-	var size = sqrt(shape.size())
+func draw_shape_at(x: int, y: int, color: Vector2i):
+	var size = sqrt(active_shape.size())
 	for i in range(size):
 		for j in range(size):
-			if shape[j + i * size]:
+			if active_shape[j + i * size]:
 				var coords = Vector2i(x + j, y + i)
 				set_cell(coords, 0, color, 0)
 
-func clear_piece() -> void:
+func can_move(x: int, y:int, x_offset: int, y_offset: int):
+	var size = sqrt(active_shape.size())
+	for i in range(size):
+		for j in range(size):
+			var coords = Vector2i(x + j + x_offset, y + i + y_offset)
+			if get_cell_source_id(coords) != -1:
+				return false
+	return true
+
+func clear_screen() -> void:
 	for i in range(1,11):
 		for j in range(1,20):
 			erase_cell(Vector2i(i,j))
