@@ -13,16 +13,45 @@ var shape_colors = [yellow, sky, blue, red, green, orange, purple]
 var init_color
 
 
-var O = [0,0,0,0, 0,1,1,0, 0,1,1,0, 0,0,0,0]
-var I = [0,0,0,0, 0,0,0,0, 1,1,1,1, 0,0,0,0]
+var O = [
+	[0,0,0,0, 0,1,1,0, 0,1,1,0, 0,0,0,0]
+]
 
-var J = [0,0,0, 1,1,1, 0,0,1]
-var L = [0,0,0, 1,1,1, 1,0,0]
+var I = [
+	[0,0,0,0, 0,0,0,0, 1,1,1,1, 0,0,0,0],
+	[0,0,1,0, 0,0,1,0, 0,0,1,0, 0,0,1,0]
+]
 
-var S = [0,0,0, 0,1,1, 1,1,0]
-var Z = [0,0,0, 1,1,0, 0,1,1]
+var J = [
+	[0,0,0, 1,1,1, 0,0,1],
+	[0,1,0, 0,1,0, 1,1,0],
+	[1,0,0, 1,1,1, 0,0,0],
+	[0,1,1, 0,1,0, 0,1,0]
+]
 
-var T = [0,0,0, 1,1,1, 0,1,0]
+var L = [
+	[0,0,0, 1,1,1, 1,0,0],
+	[1,1,0, 0,1,0, 0,1,0],
+	[0,0,1, 1,1,1, 0,0,0],
+	[0,1,0, 0,1,0, 0,1,1]
+]
+
+var S = [
+	[0,0,0, 0,1,1, 1,1,0],
+	[0,1,0, 0,1,1, 0,0,1]
+]
+
+var Z = [
+	[0,0,0, 1,1,0, 0,1,1],
+	[0,0,1, 0,1,1, 0,1,0]
+]
+
+var T = [
+	[0,0,0, 1,1,1, 0,1,0],
+	[0,1,0, 1,1,0, 0,1,0],
+	[0,1,0, 1,1,1, 0,0,0],
+	[0,1,0, 0,1,1, 0,1,0],
+]
 
 var shapes = [O, I, S, Z, L, J, T]
 var init_shape
@@ -46,9 +75,10 @@ func new_game():
 	
 func _process(delta: float) -> void:
 	steps += speed
+	var shape_rotation = randi() % init_shape.size()
 	if steps >= steps_req:
 		clear_piece()
-		draw_shape_at(5, location, init_shape, init_color)
+		draw_shape_at(5, location, init_shape[shape_rotation], init_color)
 		location += 1
 		steps = 0
 
