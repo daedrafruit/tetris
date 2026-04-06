@@ -64,7 +64,7 @@ var steps_req = 25
 var line_pos = 1
 
 var location = 1
-var curr_location = Vector2i(5, 0)
+var curr_location = Vector2i(4, 0)
 
 func _ready() -> void:
 	new_game()
@@ -78,11 +78,11 @@ func _process(delta: float) -> void:
 	steps += speed
 	#var curr_rotation = randi() % init_shape.size()
 	if steps >= steps_req:
-		if can_move(0, 0):
+		if can_move(0, 1):
 			clear_screen()
+			curr_location.y += 1
 			draw_shape()
 			steps = 0
-			curr_location.y += 1
 
 func draw_shape():
 	var size = sqrt(curr_shape.size())
@@ -96,9 +96,6 @@ func draw_shape():
 
 func can_move(x_offset: int, y_offset: int):
 	var size = sqrt(curr_shape.size())
-	var x = curr_location.x
-	var y = curr_location.y
-
 	for j in range(size):
 		for i in range(size):
 			if not curr_shape[i + j * size]:
@@ -111,7 +108,7 @@ func can_move(x_offset: int, y_offset: int):
 			if within_shape and curr_shape[x_rel + y_rel * size]:
 				continue
 
-			var coords = Vector2i(x + i + x_offset, y + j + y_offset)
+			var coords = Vector2i(curr_location.x + x_rel, curr_location.y + y_rel)
 			
 			if get_cell_source_id(coords) != -1:
 				return false
