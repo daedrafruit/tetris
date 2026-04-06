@@ -73,16 +73,23 @@ func new_game():
 	speed = 1.0
 	curr_shape = shapes[randi() % 4][rotation]
 	curr_color = shape_colors[randi() % 7]
-	
+
 func _process(delta: float) -> void:
 	steps += speed
 	#var curr_rotation = randi() % init_shape.size()
 	if steps >= steps_req:
-		if can_move(0, 1):
-			clear_screen()
-			curr_location.y += 1
-			draw_shape()
-			steps = 0
+		if not move_piece(0, 1):
+			curr_location = Vector2i(4, 0)
+			curr_shape = shapes[randi() % 4][rotation]
+			curr_color = shape_colors[randi() % 7]
+		steps = 0
+
+func _input(event):
+	if event.is_action_pressed("left"):
+		print("left")
+		move_piece(-1,0)
+	if event.is_action_pressed("right"):
+		move_piece(1,0)
 
 func draw_shape():
 	var size = sqrt(curr_shape.size())
@@ -94,6 +101,26 @@ func draw_shape():
 			var coords = Vector2i(curr_location.x + i, curr_location.y + j)
 			set_cell(coords, 0, curr_color, 0)
 
+func clear_shape():
+	var size = sqrt(curr_shape.size())
+	for j in range(size):
+		for i in range(size):
+			if not curr_shape[i + j * size]:
+				continue
+
+			var coords = Vector2i(curr_location.x + i, curr_location.y + j)
+			erase_cell(coords)
+
+func move_piece(x_offset: int, y_offset: int) -> bool:
+	if can_move(x_offset, y_offset):
+		clear_shape()
+		curr_location.y += y_offset
+		curr_location.x += x_offset
+		draw_shape()
+		return true
+	else:
+		return false
+			
 func can_move(x_offset: int, y_offset: int):
 	var size = sqrt(curr_shape.size())
 	for j in range(size):
