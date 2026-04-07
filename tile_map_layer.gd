@@ -54,6 +54,7 @@ var curr_color
 
 var shapes = [O, I, S, Z, L, J, T]
 var curr_shape
+var curr_shape_index
 
 var curr_rotation = 0
 
@@ -67,11 +68,9 @@ var location = 1
 var curr_location = Vector2i(4, 0)
 
 func _ready() -> void:
-	new_game()
-
-func new_game():
 	speed = 1.0
-	curr_shape = shapes[randi() % 4][rotation]
+	curr_shape_index = randi() % 7
+	curr_shape = shapes[curr_shape_index][rotation]
 	curr_color = shape_colors[randi() % 7]
 
 func _process(delta: float) -> void:
@@ -80,16 +79,26 @@ func _process(delta: float) -> void:
 	if steps >= steps_req:
 		if not move_piece(0, 1):
 			curr_location = Vector2i(4, 0)
-			curr_shape = shapes[randi() % 4][rotation]
+			curr_shape_index = randi() % 4
+			curr_shape = shapes[curr_shape_index][0]
 			curr_color = shape_colors[randi() % 7]
 		steps = 0
 
 func _input(event):
 	if event.is_action_pressed("left"):
-		print("left")
 		move_piece(-1,0)
 	if event.is_action_pressed("right"):
 		move_piece(1,0)
+	if event.is_action_pressed("rotate clockwise"):
+		rotate_piece_clockwise()
+
+func rotate_piece_clockwise():
+	if curr_rotation == shapes[curr_shape_index].size() - 1:
+		curr_rotation = 0
+	else:
+		curr_rotation += 1
+	clear_shape()
+	curr_shape = shapes[curr_shape_index][curr_rotation]
 
 func draw_shape():
 	var size = sqrt(curr_shape.size())
