@@ -3,10 +3,6 @@
 #include <stdlib.h>
 #include <sys/time.h>
 
-#define WORLD_WIDTH 12
-#define WORLD_HEIGHT 22
-int world[WORLD_HEIGHT][WORLD_WIDTH];
-
 double get_time_ms() {
   struct timeval time;
   gettimeofday(&time, NULL);
@@ -56,6 +52,7 @@ int T[4][3][3] = {
   {{0,1,0}, {0,1,1}, {0,1,0}}
 };
 
+
 typedef struct {
   int *data;
   int id;
@@ -63,9 +60,24 @@ typedef struct {
   int size, rotations;
 } piece; 
 
-int get_value_at(piece *p, int rotation, int x, int y) {
-  int size = p->size;
-  return *(p->data + (rotation * size * size) + (y * size) + x);
+piece p = {
+  (int *)O, //data
+          1, //id
+          3, //x
+          16, //y
+          0, //rotation 
+          4, //size
+          1  //rotations
+};
+
+#define WORLD_WIDTH 12
+#define WORLD_HEIGHT 22
+int world[WORLD_HEIGHT][WORLD_WIDTH];
+
+
+int piece_value_at(int x, int y) {
+  int size = p.size;
+  return *(p.data + (p.rotation * size * size) + (y * size) + x);
 }
 
 char colors[2] = { ".#" };
@@ -96,53 +108,53 @@ void initialize_world() {
   }
 }
 
-bool can_move(piece *p, int x_offset, int y_offset) {
-  for (int i = 0; i < p->size; i++) {
-    for (int j = 0; j < p->size; j++) {
-      if (!get_value_at(p, p->rotation, i, j))
+bool can_move(int x_offset, int y_offset) {
+  for (int i = 0; i < p.size; i++) {
+    for (int j = 0; j < p.size; j++) {
+      if (!piece_value_at(i, j))
         continue;
 
       int x_rel = j + x_offset;
       int y_rel = i + y_offset;
 
-      bool within_piece = (x_rel < p->size) && (y_rel < p->size);
+      bool within_piece = (x_rel < p.size) && (y_rel < p.size);
 
-      if (within_piece && get_value_at(p, p->rotation, x_rel, y_rel))
+      if (within_piece && piece_value_at(x_rel, y_rel))
         continue;
 
-      if (world[p->y + y_rel][p->x + x_rel] > 0)
+      if (world[p.y + y_rel][p.x + x_rel] > 0)
         return false;
     }
   }
   return true;
 }
 
-bool draw_piece(piece *p) {
-  for (int i = 0; i < p->size; i++) {
-    for (int j = 0; j < p->size; j++) {
-      if (get_value_at(p, p->rotation, i, j))
-        world[p->y + i][p->x + j] = p->id;
+bool draw_piece() {
+  for (int i = 0; i < p.size; i++) {
+    for (int j = 0; j < p.size; j++) {
+      if (piece_value_at(i, j))
+        world[p.y + i][p.x + j] = p.id;
     }
   }
   return false;
 }
 
-bool clear_piece(piece *p) {
-  for (int i = 0; i < p->size; i++) {
-    for (int j = 0; j < p->size; j++) {
-      if (get_value_at(p, p->rotation, i, j))
-        world[p->y + i][p->x + j] = 0;
+bool clear_piece() {
+  for (int i = 0; i < p.size; i++) {
+    for (int j = 0; j < p.size; j++) {
+      if (piece_value_at(i, j))
+        world[p.y + i][p.x + j] = 0;
     }
   }
   return false;
 }
 
-bool move_piece(piece *p, int x_offset, int y_offset) {
-  if (can_move(p, x_offset, y_offset)) {
-    clear_piece(p);
-    p->x += x_offset;
-    p->y += y_offset;
-    draw_piece(p);
+bool move_piece(int x_offset, int y_offset) {
+  if (can_move(x_offset, y_offset)) {
+    clear_piece();
+    p.x += x_offset;
+    p.y += y_offset;
+    draw_piece();
     return true;
   }
   else 
@@ -155,17 +167,6 @@ int main() {
   double time = get_time_ms();
   double accumulator = 0;
 
-
-  piece p = {
-    (int *)O, //data
-           1, //id
-           3, //x
-           16, //y
-           0, //rotation 
-           4, //size
-           1  //rotations
-  };
-
   initialize_world();
   draw_world();
 
@@ -177,7 +178,7 @@ int main() {
     time = now;
 
     if (accumulator >= 1000) {
-      move_piece(&p, 0, 1);
+      move_piece(0, 1);
       draw_world();
       accumulator = 0;
     }
