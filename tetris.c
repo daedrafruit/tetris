@@ -5,6 +5,7 @@
 
 #define WORLD_WIDTH 12
 #define WORLD_HEIGHT 22
+int world[WORLD_HEIGHT][WORLD_WIDTH];
 
 double get_time_ms() {
   struct timeval time;
@@ -68,7 +69,7 @@ int get_value_at(piece *p, int rotation, int x, int y) {
 }
 
 char colors[2] = { ".#" };
-void draw_world(int world[WORLD_HEIGHT][WORLD_WIDTH]) {
+void draw_world() {
   int rows = WORLD_HEIGHT;
   int cols = WORLD_WIDTH;
 
@@ -81,7 +82,7 @@ void draw_world(int world[WORLD_HEIGHT][WORLD_WIDTH]) {
   }
 }
 
-void initialize_world(int world[WORLD_HEIGHT][WORLD_WIDTH]) {
+void initialize_world() {
   int rows = WORLD_HEIGHT;
   int cols = WORLD_WIDTH;
 
@@ -95,10 +96,10 @@ void initialize_world(int world[WORLD_HEIGHT][WORLD_WIDTH]) {
   }
 }
 
-bool can_move(piece *p, int y_offset, int x_offset, int world[WORLD_HEIGHT][WORLD_WIDTH]) {
+bool can_move(piece *p, int x_offset, int y_offset) {
   for (int i = 0; i < p->size; i++) {
     for (int j = 0; j < p->size; j++) {
-      if (!get_value_at(p, 0, i, j))
+      if (!get_value_at(p, p->rotation, i, j))
         continue;
 
       int x_rel = j + x_offset;
@@ -106,17 +107,17 @@ bool can_move(piece *p, int y_offset, int x_offset, int world[WORLD_HEIGHT][WORL
 
       bool within_piece = (x_rel < p->size) && (y_rel < p->size);
 
-      if (within_piece && get_value_at(p, 0, y_rel, x_rel))
+      if (within_piece && get_value_at(p, p->rotation, x_rel, y_rel))
         continue;
 
-      if (world[p->y + y_rel][p->x + x_rel] == 1)
+      if (world[p->y + y_rel][p->x + x_rel] > 0)
         return false;
     }
   }
   return true;
 }
 
-bool draw_piece(piece *p, int world[WORLD_HEIGHT][WORLD_WIDTH]) {
+bool draw_piece(piece *p) {
   for (int i = 0; i < p->size; i++) {
     for (int j = 0; j < p->size; j++) {
       if (get_value_at(p, p->rotation, i, j))
@@ -126,7 +127,7 @@ bool draw_piece(piece *p, int world[WORLD_HEIGHT][WORLD_WIDTH]) {
   return false;
 }
 
-bool clear_piece(piece *p, int world[WORLD_HEIGHT][WORLD_WIDTH]) {
+bool clear_piece(piece *p) {
   for (int i = 0; i < p->size; i++) {
     for (int j = 0; j < p->size; j++) {
       if (get_value_at(p, p->rotation, i, j))
@@ -136,28 +137,37 @@ bool clear_piece(piece *p, int world[WORLD_HEIGHT][WORLD_WIDTH]) {
   return false;
 }
 
-bool move_piece(piece *p, int x_offset, int y_offset, int world[WORLD_HEIGHT][WORLD_WIDTH]) {
-  if (can_move(p, x_offset, y_offset, world)) {
-    clear_piece(p, world);
+bool move_piece(piece *p, int x_offset, int y_offset) {
+  if (can_move(p, x_offset, y_offset)) {
+    clear_piece(p);
     p->x += x_offset;
     p->y += y_offset;
-    draw_piece(p, world);
+    draw_piece(p);
     return true;
   }
   else 
     return false;
 }
 
+
 int main() {
   double delta;
   double time = get_time_ms();
   double accumulator = 0;
 
-  int world[WORLD_HEIGHT][WORLD_WIDTH];
 
-  piece p = {(int *)O, 1, 3, 4, 0, 4, 0};
-  initialize_world(world);
-  draw_world(world);
+  piece p = {
+    (int *)O, //data
+           1, //id
+           3, //x
+           16, //y
+           0, //rotation 
+           4, //size
+           1  //rotations
+  };
+
+  initialize_world();
+  draw_world();
 
   while (1) {
 
@@ -167,8 +177,8 @@ int main() {
     time = now;
 
     if (accumulator >= 1000) {
-      move_piece(&p, 0, 1, world);
-      draw_world(world);
+      move_piece(&p, 0, 1);
+      draw_world();
       accumulator = 0;
     }
   }
