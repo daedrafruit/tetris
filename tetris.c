@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include "utils.h"
 #include "data.h"
@@ -10,26 +11,25 @@
 int world[WORLD_HEIGHT][WORLD_WIDTH];
 
 typedef struct {
-  int *data;
   int id;
   int x, y, rotation;
-  int size, rotations;
 } piece; 
 
 piece p = {
-  (int *)O, //data
-          1, //id
-          3, //x
-          16, //y
-          0, //rotation 
-          4, //size
-          1  //rotations
+  1, //id
+  3, //x
+  16, //y
+  0, //rotation 
 };
 
 
 int piece_value_at(int x, int y) {
-  int size = p.size;
-  return *(p.data + (p.rotation * size * size) + (y * size) + x);
+  Vector2i new_coords = {y,x};
+  for (int i = 0; i < 4; i++) {
+    Vector2i coords = shapes[p.id][p.rotation][i];
+    if (coords.x == new_coords.x && coords.y == new_coords.y) return 1;
+  }
+  return 0;
 }
 
 char colors[2] = { ".#" };
@@ -61,15 +61,15 @@ void initialize_world() {
 }
 
 bool can_move(int x_offset, int y_offset) {
-  for (int i = 0; i < p.size; i++) {
-    for (int j = 0; j < p.size; j++) {
+  for (int i = 0; i < 4; i++) {
+    for (int j = 0; j < 4; j++) {
       if (!piece_value_at(i, j))
         continue;
 
       int x_rel = j + x_offset;
       int y_rel = i + y_offset;
 
-      bool within_piece = (x_rel < p.size) && (y_rel < p.size);
+      bool within_piece = (x_rel < 4) && (y_rel < 4);
 
       if (within_piece && piece_value_at(x_rel, y_rel))
         continue;
@@ -82,18 +82,18 @@ bool can_move(int x_offset, int y_offset) {
 }
 
 bool draw_piece() {
-  for (int i = 0; i < p.size; i++) {
-    for (int j = 0; j < p.size; j++) {
+  for (int i = 0; i < 4; i++) {
+    for (int j = 0; j < 4; j++) {
       if (piece_value_at(i, j))
-        world[p.y + i][p.x + j] = p.id;
+        world[p.y + i][p.x + j] = 1;
     }
   }
   return false;
 }
 
 bool clear_piece() {
-  for (int i = 0; i < p.size; i++) {
-    for (int j = 0; j < p.size; j++) {
+  for (int i = 0; i < 4; i++) {
+    for (int j = 0; j < 4; j++) {
       if (piece_value_at(i, j))
         world[p.y + i][p.x + j] = 0;
     }
@@ -116,18 +116,21 @@ bool move_piece(int x_offset, int y_offset) {
 
 int main() {
   double delta;
-  double time = get_time_ms();
+  double time_ms = get_time_ms();
   double accumulator = 0;
 
   initialize_world();
   draw_world();
 
+  srand(time(NULL));
+  p.id = rand() % 7;
+
   while (1) {
 
     double now = get_time_ms();
-    delta = now - time;
+    delta = now - time_ms;
     accumulator += delta;
-    time = now;
+    time_ms = now;
 
     if (accumulator >= 1000) {
       move_piece(0, 1);
