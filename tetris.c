@@ -1,57 +1,13 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include <sys/time.h>
 
-double get_time_ms() {
-  struct timeval time;
-  gettimeofday(&time, NULL);
-  double time_taken;
-  time_taken = time.tv_sec * 1000 + time.tv_usec / 1000.0;
-  return time_taken;
-}
+#include "utils.h"
+#include "data.h"
 
-int O[1][4][4] = {
-  {{0,0,0,0}, {0,1,1,0}, {0,1,1,0}, {0,0,0,0}}
-};
-
-
-int I[2][4][4] = {
-  {{0,0,0,0}, {0,0,0,0}, {1,1,1,1}, {0,0,0,0}},
-  {{0,0,1,0}, {0,0,1,0}, {0,0,1,0}, {0,0,1,0}}
-};
-
-int J[4][3][3] = {
-	{{0,0,0}, {1,1,1}, {0,0,1}},
-	{{0,1,0}, {0,1,0}, {1,1,0}},
-	{{1,0,0}, {1,1,1}, {0,0,0}},
-	{{0,1,1}, {0,1,0}, {0,1,0}}
-};
-
-int L[4][3][3] = {
-  {{0,0,0}, {1,1,1}, {1,0,0}},
-  {{1,1,0}, {0,1,0}, {0,1,0}},
-  {{0,0,1}, {1,1,1}, {0,0,0}},
-  {{0,1,0}, {0,1,0}, {0,1,1}}
-};
-
-int S[2][3][3] = {
-  {{0,0,0}, {0,1,1}, {1,1,0}},
-  {{0,1,0}, {0,1,1}, {0,0,1}}
-};
-
-int Z[2][3][3] = {
-  {{0,0,0}, {1,1,0}, {0,1,1}},
-  {{0,0,1}, {0,1,1}, {0,1,0}}
-};
-
-int T[4][3][3] = {
-  {{0,0,0}, {1,1,1}, {0,1,0}},
-  {{0,1,0}, {1,1,0}, {0,1,0}},
-  {{0,1,0}, {1,1,1}, {0,0,0}},
-  {{0,1,0}, {0,1,1}, {0,1,0}}
-};
-
+#define WORLD_WIDTH 12
+#define WORLD_HEIGHT 22
+int world[WORLD_HEIGHT][WORLD_WIDTH];
 
 typedef struct {
   int *data;
@@ -69,10 +25,6 @@ piece p = {
           4, //size
           1  //rotations
 };
-
-#define WORLD_WIDTH 12
-#define WORLD_HEIGHT 22
-int world[WORLD_HEIGHT][WORLD_WIDTH];
 
 
 int piece_value_at(int x, int y) {
