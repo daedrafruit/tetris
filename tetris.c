@@ -40,9 +40,9 @@ void draw_world() {
   int cols = WORLD_WIDTH;
 
   system("clear");
-  for (int i = 0; i < rows; i++) {
-    for (int j = 0; j < cols; j++) {
-      printf("%c ", colors[world[i][j]]);
+  for (int y = 0; y < rows; y++) {
+    for (int x = 0; x < cols; x++) {
+      printf("%c ", colors[world[y][x]]);
     }
     printf("\n");
   }
@@ -52,24 +52,24 @@ void initialize_world() {
   int rows = WORLD_HEIGHT;
   int cols = WORLD_WIDTH;
 
-  for (int i = 0; i < rows; i++) {
-    for (int j = 0; j < cols; j++) {
-      if (i == 0 || i == 21 || j == 0 || j == 11)
-        world[i][j] = 1;
+  for (int y = 0; y < rows; y++) {
+    for (int x = 0; x < cols; x++) {
+      if (y == 0 || y == 21 || x == 0 || x == 11)
+        world[y][x] = 1;
       else 
-        world[i][j] = 0;
+        world[y][x] = 0;
     }
   }
 }
 
 bool can_move(int x_offset, int y_offset) {
-  for (int i = 0; i < 4; i++) {
-    for (int j = 0; j < 4; j++) {
-      if (!piece_value_at(j, i))
+  for (int y = 0; y < 4; y++) {
+    for (int x = 0; x < 4; x++) {
+      if (!piece_value_at(x, y))
         continue;
 
-      int x_rel = j + x_offset;
-      int y_rel = i + y_offset;
+      int x_rel = x + x_offset;
+      int y_rel = y + y_offset;
 
       bool within_piece = (x_rel < 4) && (y_rel < 4);
 
@@ -84,20 +84,20 @@ bool can_move(int x_offset, int y_offset) {
 }
 
 bool place_piece() {
-  for (int i = 0; i < 4; i++) {
-    for (int j = 0; j < 4; j++) {
-      if (piece_value_at(j, i))
-        world[p.y + i][p.x + j] = 1;
+  for (int y = 0; y < 4; y++) {
+    for (int x = 0; x < 4; x++) {
+      if (piece_value_at(x, y))
+        world[p.y + y][p.x + x] = 1;
     }
   }
   return false;
 }
 
 bool clear_piece() {
-  for (int i = 0; i < 4; i++) {
-    for (int j = 0; j < 4; j++) {
-      if (piece_value_at(j, i))
-        world[p.y + i][p.x + j] = 0;
+  for (int y = 0; y < 4; y++) {
+    for (int x = 0; x < 4; x++) {
+      if (piece_value_at(x, y))
+        world[p.y + y][p.x + x] = 0;
     }
   }
   return false;
@@ -142,18 +142,25 @@ bool rotate_piece_clockwise() {
   return true;
 }
 
+void new_piece() {
+  p.id = rand() % 7;
+  p.rotation = 0;
+  p.x = 4;
+  p.y = 2;
+}
+
 
 int main() {
   double delta;
   double time_ms = get_time_ms();
   double accumulator = 0;
-  int timestep = 100;
-
-  initialize_world();
-  draw_world();
+  int timestep = 300;
 
   srand(time(NULL));
-  p.id = 6;
+
+  new_piece();
+  initialize_world();
+  draw_world();
 
   while (1) {
 
@@ -164,13 +171,11 @@ int main() {
 
     if (accumulator >= timestep) {
       if (!can_move(0, 1)) {
-        p.id = rand() % 7;
-        p.rotation = 0;
-        p.x = 3;
-        p.y = 5;
+        new_piece();
       }
       else {
         clear_piece();
+        if (rand() % 10 > 6) rotate_piece_clockwise();
         move_piece(0, 1);
       }
 
