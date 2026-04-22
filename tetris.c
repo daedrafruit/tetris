@@ -83,34 +83,27 @@ bool can_move(int x_offset, int y_offset) {
   return true;
 }
 
-bool place_piece() {
+void place_piece() {
   for (int y = 0; y < 4; y++) {
     for (int x = 0; x < 4; x++) {
       if (piece_value_at(x, y))
         world[p.y + y][p.x + x] = 1;
     }
   }
-  return false;
 }
 
-bool clear_piece() {
+void clear_piece() {
   for (int y = 0; y < 4; y++) {
     for (int x = 0; x < 4; x++) {
       if (piece_value_at(x, y))
         world[p.y + y][p.x + x] = 0;
     }
   }
-  return false;
 }
 
-bool move_piece(int x_offset, int y_offset) {
-  if (can_move(x_offset, y_offset)) {
-    p.x += x_offset;
-    p.y += y_offset;
-    return true;
-  }
-  else 
-    return false;
+void move_piece(int x_offset, int y_offset) {
+  p.x += x_offset;
+  p.y += y_offset;
 }
 
 
