@@ -18,18 +18,20 @@ typedef struct {
 piece p = {
   1, //id
   3, //x
-  16, //y
+  5, //y
   0, //rotation 
 };
 
 
-int piece_value_at(int x, int y) {
-  Vector2i new_coords = {y,x};
+bool piece_value_at(int x, int y) {
+  Vector2i new_coords = {x,y};
+  const Vector2i *coords = shapes[p.id][p.rotation];
+
   for (int i = 0; i < 4; i++) {
-    Vector2i coords = shapes[p.id][p.rotation][i];
-    if (coords.x == new_coords.x && coords.y == new_coords.y) return 1;
+    Vector2i c = *(coords + i);
+    if (c.x == new_coords.x && c.y == new_coords.y) return true;
   }
-  return 0;
+  return false;
 }
 
 char colors[2] = { ".#" };
@@ -63,7 +65,7 @@ void initialize_world() {
 bool can_move(int x_offset, int y_offset) {
   for (int i = 0; i < 4; i++) {
     for (int j = 0; j < 4; j++) {
-      if (!piece_value_at(i, j))
+      if (!piece_value_at(j, i))
         continue;
 
       int x_rel = j + x_offset;
@@ -81,10 +83,10 @@ bool can_move(int x_offset, int y_offset) {
   return true;
 }
 
-bool draw_piece() {
+bool place_piece() {
   for (int i = 0; i < 4; i++) {
     for (int j = 0; j < 4; j++) {
-      if (piece_value_at(i, j))
+      if (piece_value_at(j, i))
         world[p.y + i][p.x + j] = 1;
     }
   }
@@ -94,7 +96,7 @@ bool draw_piece() {
 bool clear_piece() {
   for (int i = 0; i < 4; i++) {
     for (int j = 0; j < 4; j++) {
-      if (piece_value_at(i, j))
+      if (piece_value_at(j, i))
         world[p.y + i][p.x + j] = 0;
     }
   }
@@ -103,10 +105,8 @@ bool clear_piece() {
 
 bool move_piece(int x_offset, int y_offset) {
   if (can_move(x_offset, y_offset)) {
-    clear_piece();
     p.x += x_offset;
     p.y += y_offset;
-    draw_piece();
     return true;
   }
   else 
@@ -114,16 +114,46 @@ bool move_piece(int x_offset, int y_offset) {
 }
 
 
+bool rotate_piece_counter() {
+  int temp = p.rotation;
+  if (p.rotation <= 0) {
+    p.rotation = 3;
+    return true;
+  }
+  p.rotation += 1;
+  if (!can_move(0,0)) {
+    p.rotation = temp;
+    return false;
+  }
+  return true;
+}
+
+bool rotate_piece_clockwise() {
+  int temp = p.rotation;
+  if (p.rotation >= 3) {
+    p.rotation = 0;
+    return true;
+  }
+  p.rotation += 1;
+  if (!can_move(0,0)) {
+    p.rotation = temp;
+    return false;
+  }
+  return true;
+}
+
+
 int main() {
   double delta;
   double time_ms = get_time_ms();
   double accumulator = 0;
+  int timestep = 100;
 
   initialize_world();
   draw_world();
 
   srand(time(NULL));
-  p.id = rand() % 7;
+  p.id = 6;
 
   while (1) {
 
@@ -132,8 +162,19 @@ int main() {
     accumulator += delta;
     time_ms = now;
 
-    if (accumulator >= 1000) {
-      move_piece(0, 1);
+    if (accumulator >= timestep) {
+      if (!can_move(0, 1)) {
+        p.id = rand() % 7;
+        p.rotation = 0;
+        p.x = 3;
+        p.y = 5;
+      }
+      else {
+        clear_piece();
+        move_piece(0, 1);
+      }
+
+      place_piece();
       draw_world();
       accumulator = 0;
     }
