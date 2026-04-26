@@ -1,5 +1,6 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
+#include <glad/glad.h>
 
 int main(int argc, char* argv[]) {
 
@@ -31,8 +32,17 @@ int main(int argc, char* argv[]) {
                 done = true;
             }
         }
-
         // Do game logic, present a frame, etc.
+
+        float vertices[] = {
+          -0.5f, -0.5f, 0.0f,
+          -0.5f, -0.5f, 0.0f,
+          -0.5f, -0.5f, 0.0f
+        };
+
+        unsigned int VBO;
+        glGenBuffers(1, &VBO);
+
     }
 
     // Close and destroy the window
