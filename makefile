@@ -1,12 +1,7 @@
 make: clean build run
 
 build: src/tetris.c
-	#gcc -g -o tetris tetris.c 
-	gcc -g \
-		-Iinclude \
-		-lSDL3 -lglfw \
-		-o tetris \
-		src/glad.c src/render.c
+	gcc -g -o tetris src/tetris.c 
 
 run: build
 	./tetris
